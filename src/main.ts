@@ -1,3 +1,9 @@
+import VectorTile from "ol/layer/VectorTile";
+import Vector from "ol/layer/Vector";
+import VectorTileSource from "ol/source/VectorTile";
+import VectorSource from "ol/source/Vector";
+import createMapboxStreetsV6Style from "ol-mapbox-style";
+
 var map;
 var features;
 var street_name;
@@ -6,9 +12,9 @@ var map_layer_task;
 var map_layer_solution;
 var draw_layer;
 function loadMap() {
-  map_layer_task = new ol.layer.VectorTile({
+  map_layer_task = new VectorTile({
     declutter: true,
-    source: new ol.source.VectorTile({
+    source: new VectorTileSource({
       attributions:
         '© <a href="https://www.mapbox.com/map-feedback/">Mapbox</a> ' +
         '© <a href="https://www.openstreetmap.org/copyright">' +
@@ -64,10 +70,10 @@ function showStreet() {
     );
   }
   // create the source and layer for random features
-  const vectorSource = new ol.source.Vector({
+  const vectorSource = new VectorSource({
     features: street,
   });
-  current_layer = new ol.layer.Vector({
+  current_layer = new Vector({
     source: vectorSource,
     style: new ol.style.Style({
       image: new ol.style.Circle({

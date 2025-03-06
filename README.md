@@ -2,7 +2,7 @@
 
 ## Play the game
 
-Play it here: http://conradlempert.github.io/memorize-street-names
+Play it here: **http://conradlempert.github.io/memorize-street-names**
 
 ## General info
 

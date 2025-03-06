@@ -1,17 +1,34 @@
-import VectorTile from "ol/layer/VectorTile";
-import Vector from "ol/layer/Vector";
-import VectorTileSource from "ol/source/VectorTile";
-import VectorSource from "ol/source/Vector";
-import createMapboxStreetsV6Style from "ol-mapbox-style";
+import { fromLonLat, transform } from "ol/proj";
+import { Style, Fill, Circle } from "ol/style";
+import { Feature, Map, View } from "ol";
+import { Point } from "ol/geom";
+import { Vector, VectorTile, Tile } from "ol/layer";
+import {
+  Vector as VectorSource,
+  VectorTile as VectorTileSource,
+  OSM,
+} from "ol/source";
+import { MVT } from "ol/format";
+import { Draw } from "ol/interaction";
+import { boundingExtent } from "ol/extent";
+import { getDistance } from "ol/sphere";
+import cityData from "../data/potsdam.json";
 
-var map;
-var features;
-var street_name;
-var current_layer;
-var map_layer_task;
-var map_layer_solution;
-var draw_layer;
-function loadMap() {
+type CityData = { [key: string]: number[][] };
+
+let map: Map;
+let features: CityData;
+let street_name: string;
+let current_layer: Vector;
+let draw_layer: Vector;
+let map_layer_task: VectorTile;
+let map_layer_solution: Tile;
+
+document.getElementById("nextTaskOnMap")!.onclick = nextTaskOnMap;
+document.getElementById("nextTaskStreetName")!.onclick = nextTaskStreetName;
+document.getElementById("submitStreetName")!.onclick = submitstreetname;
+
+function loadMap(): void {
   map_layer_task = new VectorTile({
     declutter: true,
     source: new VectorTileSource({
@@ -19,53 +36,36 @@ function loadMap() {
         '© <a href="https://www.mapbox.com/map-feedback/">Mapbox</a> ' +
         '© <a href="https://www.openstreetmap.org/copyright">' +
         "OpenStreetMap contributors</a>",
-      format: new ol.format.MVT(),
+      format: new MVT(),
       url:
         "https://{a-d}.tiles.mapbox.com/v4/mapbox.mapbox-streets-v6/" +
         "{z}/{x}/{y}.vector.pbf?access_token=" +
         "pk.eyJ1IjoiY2xuZXh1cyIsImEiOiJjajMyNHJzb24wMGE4MzJudTk4b3loaWVlIn0.C5EK2wZ72uTyskjsYjOsTQ",
     }),
-    style: createMapboxStreetsV6Style(
-      ol.style.Style,
-      ol.style.Fill,
-      ol.style.Stroke,
-      ol.style.Icon,
-      ol.style.Text
-    ),
   });
-  map_layer_solution = new ol.layer.Tile({
-    source: new ol.source.OSM(),
+  map_layer_solution = new Tile({
+    source: new OSM(),
   });
-  map = new ol.Map({
+  map = new Map({
     target: "map",
     layers: [map_layer_solution, map_layer_task],
-    view: new ol.View({
-      center: ol.proj.fromLonLat([13.0702085, 52.41924]),
+    view: new View({
+      center: fromLonLat([13.0702085, 52.41924]),
       zoom: 12,
     }),
   });
-  console.log(map_layer_task);
   map_layer_task.setVisible(false);
 }
-function loadData() {
-  fetch("./potsdam.json")
-    .then(function (response) {
-      return response.json();
-    })
-    .then(function (data) {
-      features = data;
-    })
-    .catch(function (error) {
-      console.error(error);
-    });
+function loadData(): void {
+  features = cityData as CityData;
 }
-function showStreet() {
+function showStreet(): void {
   const street_features = features[street_name];
   const street = [];
   for (const feature of street_features) {
     street.push(
-      new ol.Feature({
-        geometry: new ol.geom.Point(ol.proj.fromLonLat(feature)),
+      new Feature({
+        geometry: new Point(fromLonLat(feature)),
       })
     );
   }
@@ -75,76 +75,71 @@ function showStreet() {
   });
   current_layer = new Vector({
     source: vectorSource,
-    style: new ol.style.Style({
-      image: new ol.style.Circle({
+    style: new Style({
+      image: new Circle({
         radius: 2,
-        fill: new ol.style.Fill({ color: "red" }),
+        fill: new Fill({ color: "red" }),
       }),
     }),
   });
   map.addLayer(current_layer);
   zoomToStreet();
 }
-function zoomToStreet(additionalPoints) {
+function zoomToStreet(additionalPoints?: any[]): void {
   const extraPoints = additionalPoints ? additionalPoints : [];
   const street_features = [...features[street_name], ...extraPoints];
-  const transformed_points = street_features.map((f) => ol.proj.fromLonLat(f));
-  const extent = ol.extent.boundingExtent(transformed_points);
+  const transformed_points = street_features.map((f) => fromLonLat(f));
+  const extent = boundingExtent(transformed_points);
   map.getView().fit(extent, { padding: [300, 300, 300, 300] });
 }
-function getRandomStreetName() {
+function getRandomStreetName(): string {
   const street_names = Object.keys(features);
   return street_names[Math.floor(Math.random() * street_names.length)];
 }
-function nextTaskOnMap() {
+function nextTaskOnMap(): void {
   map_layer_task.setVisible(true);
   map_layer_solution.setVisible(false);
   map.removeLayer(current_layer);
-  document.getElementById("streetnameinput").value = "";
-  document.getElementById("info").innerHTML = "";
-  document.getElementById("elementsOnMap").style.display = "block";
-  document.getElementById("elementsStreetName").style.display = "none";
+  (document.getElementById("streetnameinput")! as HTMLInputElement).value = "";
+  document.getElementById("info")!.innerHTML = "";
+  document.getElementById("elementsOnMap")!.style.display = "block";
+  document.getElementById("elementsStreetName")!.style.display = "none";
   street_name = getRandomStreetName();
   showStreet();
 }
-function nextTaskStreetName() {
+function nextTaskStreetName(): void {
   zoomToPdm();
   map_layer_task.setVisible(true);
   map_layer_solution.setVisible(false);
   map.removeLayer(current_layer);
-  document.getElementById("elementsOnMap").style.display = "none";
-  document.getElementById("elementsStreetName").style.display = "block";
+  document.getElementById("elementsOnMap")!.style.display = "none";
+  document.getElementById("elementsStreetName")!.style.display = "block";
   street_name = getRandomStreetName();
-  document.getElementById("street_name").innerHTML = street_name;
+  document.getElementById("street_name")!.innerHTML = street_name;
   map.removeLayer(draw_layer);
-  var draw_source = new ol.source.Vector({ wrapX: false });
-  draw_layer = new ol.layer.Vector({
+  var draw_source = new VectorSource({ wrapX: false });
+  draw_layer = new Vector({
     source: draw_source,
-    style: new ol.style.Style({
-      image: new ol.style.Circle({
+    style: new Style({
+      image: new Circle({
         radius: 5,
-        fill: new ol.style.Fill({ color: "blue" }),
+        fill: new Fill({ color: "blue" }),
       }),
     }),
   });
-  draw = new ol.interaction.Draw({
+  const draw = new Draw({
     source: draw_source,
     type: "Point",
   });
   draw.on("drawend", (e) => {
-    console.log(e.feature);
-    const feature_coords = e.feature.getGeometry().getCoordinates();
-    const feature_lonlat = ol.proj.transform(
-      feature_coords,
-      "EPSG:3857",
-      "EPSG:4326"
-    );
+    const feature_coords = e.feature.getGeometry()!.getCoordinates();
+    const feature_lonlat = transform(feature_coords, "EPSG:3857", "EPSG:4326");
     const street_features = features[street_name];
     const distances = street_features.map((f) => {
-      return ol.sphere.getDistance(f, feature_lonlat);
+      return getDistance(f, feature_lonlat);
     });
     const min = Math.min(...distances);
-    document.getElementById("distance").innerHTML = min.toFixed(0) + "m";
+    document.getElementById("distance")!.innerHTML = min.toFixed(0) + "m";
     map_layer_task.setVisible(false);
     map_layer_solution.setVisible(true);
     showStreet();
@@ -154,30 +149,34 @@ function nextTaskStreetName() {
   map.addInteraction(draw);
   map.addLayer(draw_layer);
 }
-function submitstreetname() {
+function submitstreetname(): void {
   if (
     street_name.toLowerCase() ===
-    document.getElementById("streetnameinput").value.toLowerCase()
+    (
+      document.getElementById("streetnameinput")! as HTMLInputElement
+    ).value.toLowerCase()
   ) {
-    document.getElementById("info").innerHTML = "correct :)";
+    document.getElementById("info")!.innerHTML = "correct :)";
   } else {
-    document.getElementById("info").innerHTML = "wrong, it was " + street_name;
+    document.getElementById("info")!.innerHTML = "wrong, it was " + street_name;
   }
   map_layer_task.setVisible(false);
   map_layer_solution.setVisible(true);
 }
-loadMap();
-loadData();
-document.onkeyup = (ev) => {
+
+document.onkeyup = (ev: KeyboardEvent): void => {
   if (ev.key === "Enter") {
     submitstreetname();
   }
 };
-function zoomToPdm() {
+function zoomToPdm(): void {
   map.setView(
-    new ol.View({
-      center: ol.proj.fromLonLat([13.0702085, 52.41924]),
+    new View({
+      center: fromLonLat([13.0702085, 52.41924]),
       zoom: 12,
     })
   );
 }
+
+loadMap();
+loadData();

@@ -2,19 +2,18 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.14.1/css/ol.css" type="text/css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ol@v10.4.0/ol.css">
   <style>
     .map {
       height: 800px;
       width: 100%;
     }
   </style>
-  <script src="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.14.1/build/ol.js"></script>
-  <script src="https://openlayers.org/en/v6.14.1/examples/resources/mapbox-streets-v6-style.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/ol@v10.4.0/dist/ol.js"></script>
   <title>OpenLayers example</title>
 </head>
 <body>
-  <script type="module" src="/src/main.ts"></script>
+  <script type="module" src="/main.ts"></script>
   <h2>My Map</h2>
   <div id="map" class="map"></div><br>
   <button onclick="nextTaskOnMap()">Next task (on map)</button>

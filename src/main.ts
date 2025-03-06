@@ -10,7 +10,7 @@ import {
 } from "ol/source";
 import { MVT } from "ol/format";
 import { Draw } from "ol/interaction";
-import { boundingExtent } from "ol/extent";
+import { boundingExtent, getCenter } from "ol/extent";
 import { getDistance } from "ol/sphere";
 import cityData from "../data/potsdam.json";
 
@@ -132,7 +132,7 @@ function nextTaskStreetName(): void {
     type: "Point",
   });
   draw.on("drawend", (e) => {
-    const feature_coords = e.feature.getGeometry()!.getCoordinates();
+    const feature_coords = getCenter(e.feature.getGeometry()!.getExtent());
     const feature_lonlat = transform(feature_coords, "EPSG:3857", "EPSG:4326");
     const street_features = features[street_name];
     const distances = street_features.map((f) => {

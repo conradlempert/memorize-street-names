@@ -1,3 +1,5 @@
+import { useEffect } from 'react'
+import './App.css'
 import { fromLonLat, transform } from "ol/proj";
 import { Style, Fill, Circle } from "ol/style";
 import { Feature, Map, View } from "ol";
@@ -14,6 +16,38 @@ import { boundingExtent, getCenter } from "ol/extent";
 import { getDistance } from "ol/sphere";
 import cityData from "../data/potsdam.json";
 
+function App() {
+  useEffect(() => {
+    loadMap();
+    loadData();
+  });
+  return (
+    <div className='container'>
+      <h1 className='mt-4 mb-4'>Memorize street names</h1>
+      <div className='btn-toolbar'>
+        <div className="btn-group mr-2" role="group">
+          <button type="button" className="btn btn-outline-secondary" onClick={nextTaskOnMap}>Next task (on map)</button>
+        </div>
+        <div className="btn-group mr-2" role="group">
+          <button type="button" className="btn btn-outline-secondary" onClick={nextTaskStreetName}>Next task (street name)</button>
+        </div>
+        <div className="input-group" id="elementsOnMap" style={{display: "none"}}>
+          <input type="text" className="form-control" id="streetnameinput" placeholder="Enter street name" />
+          <div className="input-group-append">
+            <button onClick={submitstreetname} className="btn btn-outline-secondary btn-append" type="button">ok</button>
+          </div>
+          <p id="info"></p>
+        </div>
+        <div id="elementsStreetName" style={{display: "none"}}>
+          <span id="street_name" className="btn-group mr-2"></span>
+          <span id="distance" className="btn-group mr-2"></span>
+        </div>
+      </div>
+      <div id="map" className="map"></div><br/>
+    </div>
+  )
+}
+
 type CityData = { [key: string]: number[][] };
 
 let map: Map;
@@ -24,15 +58,13 @@ let draw_layer: Vector;
 let map_layer_task: VectorTile;
 let map_layer_solution: Tile;
 
-document.getElementById("nextTaskOnMap")!.onclick = nextTaskOnMap;
-document.getElementById("nextTaskStreetName")!.onclick = nextTaskStreetName;
-document.getElementById("submitStreetName")!.onclick = submitstreetname;
-
 function loadMap(): void {
+  if(map) return;
+  document.getElementById("map")!.innerHTML = "";
   map_layer_task = new VectorTile({
     declutter: true,
     source: new VectorTileSource({
-      attributions:
+      attributions: 
         '© <a href="https://www.mapbox.com/map-feedback/">Mapbox</a> ' +
         '© <a href="https://www.openstreetmap.org/copyright">' +
         "OpenStreetMap contributors</a>",
@@ -102,7 +134,7 @@ function nextTaskOnMap(): void {
   map.removeLayer(current_layer);
   (document.getElementById("streetnameinput")! as HTMLInputElement).value = "";
   document.getElementById("info")!.innerHTML = "";
-  document.getElementById("elementsOnMap")!.style.display = "block";
+  document.getElementById("elementsOnMap")!.style.display = "flex";
   document.getElementById("elementsStreetName")!.style.display = "none";
   street_name = getRandomStreetName();
   showStreet();
@@ -113,7 +145,7 @@ function nextTaskStreetName(): void {
   map_layer_solution.setVisible(false);
   map.removeLayer(current_layer);
   document.getElementById("elementsOnMap")!.style.display = "none";
-  document.getElementById("elementsStreetName")!.style.display = "block";
+  document.getElementById("elementsStreetName")!.style.display = "flex";
   street_name = getRandomStreetName();
   document.getElementById("street_name")!.innerHTML = street_name;
   map.removeLayer(draw_layer);
@@ -178,5 +210,4 @@ function zoomToPdm(): void {
   );
 }
 
-loadMap();
-loadData();
+export default App

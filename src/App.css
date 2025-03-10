@@ -1,0 +1,14 @@
+.map {
+  height: calc(100vh - 200px);
+  width: 100%;
+  margin-top: 20px;
+}
+
+.mr-2 {
+  margin-right: 0.5rem !important;
+}
+
+.btn-append {
+  border-top-left-radius: 0px;
+  border-bottom-left-radius: 0px;
+}

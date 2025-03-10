@@ -10,6 +10,10 @@ Play it here: **http://conradlempert.github.io/memorize-street-names**
 
 This is a game about memorizing street names. Currently made for Potsdam.
 
+It is written in TypeScript/React on a Vite server. The map is built with OpenLayers.
+
+## How to play
+
 There are two modes:
 1. "Next task (on map)" highlights a street on the map which you have to name.
 2. "Next task (street name)" gives you a street name which you have to point to on the map.

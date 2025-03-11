@@ -17,18 +17,19 @@ import { getDistance } from "ol/sphere";
 import cityData from "../data/potsdam.json";
 import { Coordinate } from 'ol/coordinate';
 
+type CityData = { [key: string]: number[][] };
+
+// These should never be changed by user code, they are just cached for performance
+let map: Map;
+let features: CityData;
+let street_layer: Vector | null;
+let draw_layer: Vector | null;
+let map_layer_task: VectorTile;
+let map_layer_solution: Tile;
+
 function App() {
-
-  type CityData = { [key: string]: number[][] };
-
-  let map: Map;
-  let features: CityData;
-  let street_layer: Vector | null;
-  let draw_layer: Vector | null;
-  let map_layer_task: VectorTile;
-  let map_layer_solution: Tile;
-  let initialized = false;
-
+  
+  const [initialized, set_initialized] = useState(false);
   const [mode, set_mode] = useState<"none" | "onMap" | "streetName">("none");
   const [street_name, set_street_name] = useState("");
   const [distance, set_distance] = useState(0);
@@ -44,7 +45,7 @@ function App() {
   useEffect(() => {
     if(!initialized) {
       initialize();
-      initialized = true;
+      set_initialized(true);
     }
     updateMapLayers();
     updateStreetLayer();
@@ -215,7 +216,7 @@ function App() {
   function updateMapLayers(): void {
     if(should_show_map_labels) {
       map_layer_solution.setVisible(true);
-      map_layer_task.setVisible(false)
+      map_layer_task.setVisible(false);
     } else {
       map_layer_solution.setVisible(false);
       map_layer_task.setVisible(true);
@@ -236,29 +237,6 @@ function App() {
     );
   }
 
-  function InfoElements() {
-    if(mode === "onMap") {
-      return (
-        <div className="input-group">
-          <input type="text" className="form-control" value={street_name_input_content} onChange={(e) => set_street_name_input_content(e.target.value)} placeholder="Enter street name" />
-          <div className="input-group-append">
-            <button onClick={submitstreetname} className="btn btn-outline-secondary btn-append" type="button">ok</button>
-          </div>
-          <p>{success_info_text}</p>
-        </div>
-      )
-    } else if(mode === "streetName") {
-      return (
-        <div id="elementsStreetName">
-          <span className="btn-group mr-2">{street_name}</span>
-          <span className="btn-group mr-2">{should_show_distance ? distance.toFixed(0) + "m" : ""}</span>
-        </div>
-      )
-    } else {
-      return;
-    }
-  }
-
   return (
     <div className='container'>
       <h1 className='mt-4 mb-4'>Memorize street names</h1>
@@ -269,7 +247,21 @@ function App() {
         <div className="btn-group mr-2" role="group">
           <button type="button" className="btn btn-outline-secondary" onClick={nextTaskStreetName}>Next task (street name)</button>
         </div>
-        <InfoElements />
+        {(mode === "onMap") && (
+          <div className="input-group">
+            <input type="text" className="form-control" value={street_name_input_content} onChange={(e) => set_street_name_input_content(e.target.value)} placeholder="Enter street name" />
+            <div className="input-group-append">
+              <button onClick={submitstreetname} className="btn btn-outline-secondary btn-append" type="button">ok</button>
+            </div>
+            <p>{success_info_text}</p>
+          </div>
+        )}
+        {(mode === "streetName") && (
+          <div id="elementsStreetName">
+            <span className="btn-group mr-2">{street_name}</span>
+            <span className="btn-group mr-2">{should_show_distance ? distance.toFixed(0) + "m" : ""}</span>
+          </div>
+        )}
       </div>
       <div id="map" className="map"></div><br/>
     </div>

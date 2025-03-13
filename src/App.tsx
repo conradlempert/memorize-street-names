@@ -16,6 +16,7 @@ import { boundingExtent, getCenter } from "ol/extent";
 import { getDistance } from "ol/sphere";
 import cityData from "../data/potsdam.json";
 import { Coordinate } from 'ol/coordinate';
+import createMapboxStreetsV6Style from "./createMapboxStyle";
 
 type CityData = { [key: string]: number[][] };
 
@@ -78,6 +79,7 @@ function App() {
           "{z}/{x}/{y}.vector.pbf?access_token=" +
           "pk.eyJ1IjoiY2xuZXh1cyIsImEiOiJjajMyNHJzb24wMGE4MzJudTk4b3loaWVlIn0.C5EK2wZ72uTyskjsYjOsTQ",
       }),
+      style: createMapboxStreetsV6Style(),
     });
     map_layer_solution = new Tile({
       source: new OSM(),

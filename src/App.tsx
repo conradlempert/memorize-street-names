@@ -31,7 +31,7 @@ let map_layer_solution: Tile;
 function App() {
   
   const [initialized, set_initialized] = useState(false);
-  const [mode, set_mode] = useState<"none" | "onMap" | "streetName">("none");
+  const [mode, set_mode] = useState<"none" | "onMap" | "streetName">("streetName");
   const [street_name, set_street_name] = useState("");
   const [distance, set_distance] = useState(0);
   const [should_highlight_street, set_should_highlight_street] = useState(false);
@@ -59,6 +59,7 @@ function App() {
   function initialize() {
     loadMap();
     loadData();
+    nextTaskStreetName();
   }
 
   function loadMap(): void {
@@ -215,10 +216,10 @@ function App() {
   }
   function submitstreetname(): void {
     if (street_name.toLowerCase() === street_name_input_content.toLowerCase()) {
-      set_success_info_text("correct :)");
+      set_success_info_text("Correct!");
       set_success_value(1);
     } else {
-      set_success_info_text("wrong, it was " + street_name);
+      set_success_info_text("Wrong, it was " + street_name + ".");
       set_success_value(0);
     }
     set_should_show_map_labels(true);
@@ -276,29 +277,32 @@ function App() {
 
   return (
     <div className='container'>
-      <h1 className='mt-4 mb-4'>Memorize street names</h1>
+      {(mode === "onMap") && (
+          <h1 className='mt-4 mb-4 headline'>
+            <input className='mr-2 headline-input' type="text" value={street_name_input_content} onChange={(e) => set_street_name_input_content(e.target.value)} placeholder="Enter street name" />
+            <button onClick={submitstreetname} className="btn btn-outline-dark btn-lg mr-2 headline-button" type="button">ok</button>
+            <b>{success_info_text}</b>
+          </h1>
+        )}
+        {(mode === "streetName") && (
+          <h1 className='mt-4 mb-4 headline'>
+            Click <b>{street_name}</b> on the map!&nbsp;
+            {(should_show_distance && (
+              <span>
+                Distance:&nbsp;
+                <b>{distance.toFixed(0) + "m"}</b>
+              </span>
+            ))}
+          </h1>
+        )}
+      
       <div className='btn-toolbar'>
-        <div className="btn-group mr-2" role="group">
-          <button type="button" className="btn btn-outline-dark" onClick={nextTaskOnMap}>Next task (on map)</button>
-        </div>
         <div className="btn-group mr-2" role="group">
           <button type="button" className="btn btn-outline-dark" onClick={nextTaskStreetName}>Next task (street name)</button>
         </div>
-        {(mode === "onMap") && (
-          <div className="input-group mr-2">
-            <input type="text" className="form-control" value={street_name_input_content} onChange={(e) => set_street_name_input_content(e.target.value)} placeholder="Enter street name" />
-            <div className="input-group-append mr-2">
-              <button onClick={submitstreetname} className="btn btn-outline-dark btn-append" type="button">ok</button>
-            </div>
-            <p style={{fontWeight: "bold"}}>{success_info_text}</p>
-          </div>
-        )}
-        {(mode === "streetName") && (
-          <div className="input-group" id="elementsStreetName">
-            <span className="btn-group mr-2">{street_name} (click on map!)</span>
-            <span className="btn-group mr-2" style={{fontWeight: "bold"}}>{should_show_distance ? "Distance: " + distance.toFixed(0) + "m" : ""}</span>
-          </div>
-        )}
+        <div className="btn-group mr-2" role="group">
+          <button type="button" className="btn btn-outline-dark" onClick={nextTaskOnMap}>Next task (on map)</button>
+        </div>
       </div>
       <div id="map" className="map"></div><br/>
     </div>

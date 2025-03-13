@@ -6,7 +6,7 @@ Play it here: **http://conradlempert.github.io/memorize-street-names**
 
 ## General info
 
-![Screenshot 2025-03-10 at 13 14 45](https://github.com/user-attachments/assets/bf81bcda-b511-45db-abb4-987a2bdd6aa0)
+![Screenshot 2025-03-13 at 21 50 02](https://github.com/user-attachments/assets/6a8b2d0c-4419-4640-b9e9-7421b2b04f40)
 
 This is a game about memorizing street names. Currently made for Potsdam.
 

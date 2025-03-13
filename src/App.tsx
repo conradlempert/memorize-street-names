@@ -42,6 +42,7 @@ function App() {
   const [additional_zoom_points, set_additional_zoom_points] = useState<Coordinate[]>([]);
   const [street_name_input_content, set_street_name_input_content] = useState("");
   const [success_info_text, set_success_info_text] = useState("");
+  const [success_value, set_success_value] = useState(-1);
 
   useEffect(() => {
     if(!initialized) {
@@ -52,6 +53,7 @@ function App() {
     updateStreetLayer();
     updateDrawLayer();
     updateZoomLevel();
+    updateSuccessColor();
   });
 
   function initialize() {
@@ -148,6 +150,7 @@ function App() {
     set_should_show_draw_layer(false);
     set_street_name_input_content("");
     set_success_info_text("");
+    set_success_value(-1);
     set_should_show_distance(false);
   }
   function nextTaskStreetName(): void {
@@ -158,6 +161,7 @@ function App() {
     set_should_zoom_to_street(false);
     set_should_highlight_street(false);
     set_should_show_draw_layer(true);
+    set_success_value(-1);
     set_should_show_distance(false);
   }
   function updateDrawLayer() {
@@ -200,6 +204,11 @@ function App() {
       set_should_zoom_to_street(false);
       set_should_highlight_street(true);
       set_additional_zoom_points([feature_lonlat]);
+      if(min < 100) {
+        set_success_value(1);
+      } else {
+        set_success_value(1-(min - 100)/1000);
+      }
     });
     map.addInteraction(draw);
     map.addLayer(draw_layer);
@@ -207,8 +216,10 @@ function App() {
   function submitstreetname(): void {
     if (street_name.toLowerCase() === street_name_input_content.toLowerCase()) {
       set_success_info_text("correct :)");
+      set_success_value(1);
     } else {
       set_success_info_text("wrong, it was " + street_name);
+      set_success_value(0);
     }
     set_should_show_map_labels(true);
   }
@@ -219,6 +230,24 @@ function App() {
     } else {
       zoomToPdm();
     }
+  }
+
+  function updateSuccessColor() {
+    let color: string;
+    if(success_value === -1) {
+      color = "white";
+    } else {
+      if(success_value > 0.8) {
+        color = "lightgreen";
+      }
+      else if(success_value > 0.5) {
+        color = "#EEEE90";
+      }
+      else {
+        color = "#EE9090";
+      }
+    }
+    document.getElementsByTagName("body")[0].style.backgroundColor = color;
   }
 
   function updateMapLayers(): void {
@@ -250,24 +279,24 @@ function App() {
       <h1 className='mt-4 mb-4'>Memorize street names</h1>
       <div className='btn-toolbar'>
         <div className="btn-group mr-2" role="group">
-          <button type="button" className="btn btn-outline-secondary" onClick={nextTaskOnMap}>Next task (on map)</button>
+          <button type="button" className="btn btn-outline-dark" onClick={nextTaskOnMap}>Next task (on map)</button>
         </div>
         <div className="btn-group mr-2" role="group">
-          <button type="button" className="btn btn-outline-secondary" onClick={nextTaskStreetName}>Next task (street name)</button>
+          <button type="button" className="btn btn-outline-dark" onClick={nextTaskStreetName}>Next task (street name)</button>
         </div>
         {(mode === "onMap") && (
-          <div className="input-group">
+          <div className="input-group mr-2">
             <input type="text" className="form-control" value={street_name_input_content} onChange={(e) => set_street_name_input_content(e.target.value)} placeholder="Enter street name" />
-            <div className="input-group-append">
-              <button onClick={submitstreetname} className="btn btn-outline-secondary btn-append" type="button">ok</button>
+            <div className="input-group-append mr-2">
+              <button onClick={submitstreetname} className="btn btn-outline-dark btn-append" type="button">ok</button>
             </div>
-            <p>{success_info_text}</p>
+            <p style={{fontWeight: "bold"}}>{success_info_text}</p>
           </div>
         )}
         {(mode === "streetName") && (
-          <div id="elementsStreetName">
+          <div className="input-group" id="elementsStreetName">
             <span className="btn-group mr-2">{street_name} (click on map!)</span>
-            <span className="btn-group mr-2">{should_show_distance ? distance.toFixed(0) + "m" : ""}</span>
+            <span className="btn-group mr-2" style={{fontWeight: "bold"}}>{should_show_distance ? "Distance: " + distance.toFixed(0) + "m" : ""}</span>
           </div>
         )}
       </div>

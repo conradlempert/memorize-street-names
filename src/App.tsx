@@ -24,6 +24,7 @@ let map: Map;
 let features: CityData;
 let street_layer: Vector | null;
 let draw_layer: Vector | null;
+let draw: Draw | null;
 let map_layer_task: VectorTile;
 let map_layer_solution: Tile;
 
@@ -131,14 +132,18 @@ function App() {
   }
   function getRandomStreetName(): string {
     const street_names = Object.keys(features);
-    return street_names[Math.floor(Math.random() * street_names.length)];
+    let current_name: string;
+    do { 
+      current_name = street_names[Math.floor(Math.random() * street_names.length)];
+    } while (features[current_name].length < 10);
+    return current_name;
   }
   function nextTaskOnMap(): void {
     set_mode("onMap")
     set_street_name(getRandomStreetName());
     set_additional_zoom_points([]);
     set_should_show_map_labels(false);
-    set_should_zoom_to_street(true);
+    set_should_zoom_to_street(false);
     set_should_highlight_street(true);
     set_should_show_draw_layer(false);
     set_street_name_input_content("");
@@ -156,6 +161,10 @@ function App() {
     set_should_show_distance(false);
   }
   function updateDrawLayer() {
+    if(draw) {
+      map.removeInteraction(draw);
+      draw = null;
+    }
     if(draw_layer) {
       map.removeLayer(draw_layer);
       draw_layer = null;
@@ -173,7 +182,7 @@ function App() {
         }),
       }),
     });
-    const draw = new Draw({
+    draw = new Draw({
       source: draw_source,
       type: "Point",
     });
@@ -188,10 +197,9 @@ function App() {
       set_distance(min);
       set_should_show_distance(true);
       set_should_show_map_labels(true);
-      set_should_zoom_to_street(true);
+      set_should_zoom_to_street(false);
       set_should_highlight_street(true);
       set_additional_zoom_points([feature_lonlat]);
-      map.removeInteraction(draw);
     });
     map.addInteraction(draw);
     map.addLayer(draw_layer);
@@ -231,8 +239,8 @@ function App() {
   function zoomToPdm(): void {
     map.setView(
       new View({
-        center: fromLonLat([13.0702085, 52.41924]),
-        zoom: 12,
+        center: fromLonLat([13.0702085, 52.4]),
+        zoom: 12.5,
       })
     );
   }
@@ -258,7 +266,7 @@ function App() {
         )}
         {(mode === "streetName") && (
           <div id="elementsStreetName">
-            <span className="btn-group mr-2">{street_name}</span>
+            <span className="btn-group mr-2">{street_name} (click on map!)</span>
             <span className="btn-group mr-2">{should_show_distance ? distance.toFixed(0) + "m" : ""}</span>
           </div>
         )}

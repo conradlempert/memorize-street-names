@@ -12,10 +12,9 @@ import {
 } from "ol/source";
 import { MVT } from "ol/format";
 import { Draw } from "ol/interaction";
-import { boundingExtent, getCenter } from "ol/extent";
+import { getCenter } from "ol/extent";
 import { getDistance } from "ol/sphere";
 import cityData from "../data/potsdam.json";
-import { Coordinate } from 'ol/coordinate';
 import createMapboxStreetsV6Style from "./createMapboxStyle";
 
 type CityData = { [key: string]: number[][] };
@@ -37,10 +36,8 @@ function App() {
   const [distance, set_distance] = useState(0);
   const [should_highlight_street, set_should_highlight_street] = useState(false);
   const [should_show_map_labels, set_should_show_map_labels] = useState(true);
-  const [should_zoom_to_street, set_should_zoom_to_street] = useState(false);
   const [should_show_draw_layer, set_should_show_draw_layer] = useState(false);
   const [should_show_distance, set_should_show_distance] = useState(false);
-  const [additional_zoom_points, set_additional_zoom_points] = useState<Coordinate[]>([]);
   const [street_name_input_content, set_street_name_input_content] = useState("");
   const [success_info_text, set_success_info_text] = useState("");
   const [success_value, set_success_value] = useState(-1);
@@ -53,7 +50,6 @@ function App() {
     updateMapLayers();
     updateStreetLayer();
     updateDrawLayer();
-    updateZoomLevel();
     updateSuccessColor();
   });
 
@@ -127,13 +123,6 @@ function App() {
       }),
     });
     map.addLayer(street_layer);
-    zoomToStreet();
-  }
-  function zoomToStreet(): void {
-    const street_features = [...features[street_name], ...additional_zoom_points];
-    const transformed_points = street_features.map((f) => fromLonLat(f));
-    const extent = boundingExtent(transformed_points);
-    map.getView().fit(extent, { padding: [300, 300, 300, 300] });
   }
   function getRandomStreetName(): string {
     const street_names = Object.keys(features);
@@ -146,26 +135,24 @@ function App() {
   function nextTaskOnMap(): void {
     set_mode("onMap")
     set_street_name(getRandomStreetName());
-    set_additional_zoom_points([]);
     set_should_show_map_labels(false);
-    set_should_zoom_to_street(false);
     set_should_highlight_street(true);
     set_should_show_draw_layer(false);
     set_street_name_input_content("");
     set_success_info_text("");
     set_success_value(-1);
     set_should_show_distance(false);
+    zoomToPdm();
   }
   function nextTaskStreetName(): void {
     set_mode("streetName");
     set_street_name(getRandomStreetName());
     set_should_show_map_labels(false);
-    set_additional_zoom_points([]);
-    set_should_zoom_to_street(false);
     set_should_highlight_street(false);
     set_should_show_draw_layer(true);
     set_success_value(-1);
     set_should_show_distance(false);
+    zoomToPdm();
   }
   function updateDrawLayer() {
     if(draw) {
@@ -204,9 +191,7 @@ function App() {
       set_distance(min);
       set_should_show_distance(true);
       set_should_show_map_labels(true);
-      set_should_zoom_to_street(false);
       set_should_highlight_street(true);
-      set_additional_zoom_points([feature_lonlat]);
       if(min < 100) {
         set_success_value(1);
       } else {
@@ -225,14 +210,6 @@ function App() {
       set_success_value(0);
     }
     set_should_show_map_labels(true);
-  }
-
-  function updateZoomLevel(): void {
-    if(should_zoom_to_street) {
-      zoomToStreet();
-    } else {
-      zoomToPdm();
-    }
   }
 
   function updateSuccessColor() {

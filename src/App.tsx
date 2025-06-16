@@ -255,16 +255,16 @@ function App() {
   }
 
   return (
-    <div className='container'>
+    <div className='px-20 py-8 w-dvw h-dvh'>
       {(mode === "onMap") && (
-          <h1 className='mt-4 mb-4 headline'>
-            <input className='mr-2 headline-input' type="text" value={street_name_input_content} onChange={(e) => set_street_name_input_content(e.target.value)} placeholder="Enter street name" />
-            <button onClick={submitstreetname} className="btn btn-outline-dark btn-lg mr-2 headline-button" type="button">ok</button>
-            <b>{success_info_text}</b>
-          </h1>
+          <div className='mb-4'>
+            <input className='text-4xl mr-2 border-b-2 border-gray-200' type="text" value={street_name_input_content} onChange={(e) => set_street_name_input_content(e.target.value)} placeholder="Enter street name" />
+            <button onClick={submitstreetname} className="bg-transparent hover:bg-black hover:text-white text-xl py-2 px-4 border hover:border-transparent rounded-md mr-2 cursor-pointer" type="button">ok</button>
+            <span className='text-4xl ml-4 font-bold'>{success_info_text}</span>
+          </div>
         )}
         {(mode === "streetName") && (
-          <h1 className='mt-4 mb-4 headline'>
+          <div className='text-4xl mb-4'>
             Click <b>{street_name}</b> on the map!&nbsp;
             {(should_show_distance && (
               <span>
@@ -272,18 +272,14 @@ function App() {
                 <b>{distance.toFixed(0) + "m"}</b>
               </span>
             ))}
-          </h1>
+          </div>
         )}
       
-      <div className='btn-toolbar'>
-        <div className="btn-group mr-2" role="group">
-          <button type="button" className="btn btn-outline-dark" onClick={nextTaskStreetName}>Next task (street name)</button>
-        </div>
-        <div className="btn-group mr-2" role="group">
-          <button type="button" className="btn btn-outline-dark" onClick={nextTaskOnMap}>Next task (on map)</button>
-        </div>
+      <div className='mt-8 mb-4'>
+          <button type="button" className="bg-transparent hover:bg-black hover:text-white py-2 px-4 border hover:border-transparent rounded-md mr-2 cursor-pointer" onClick={nextTaskStreetName}>Next task (street name)</button>
+          <button type="button" className="bg-transparent hover:bg-black hover:text-white py-2 px-4 border hover:border-transparent rounded-md mr-2 cursor-pointer" onClick={nextTaskOnMap}>Next task (on map)</button>
       </div>
-      <div id="map" className="map"></div><br/>
+      <div id="map" className="w-full h-[calc(100%-9rem)] mt-5"></div><br/>
     </div>
   )
 }

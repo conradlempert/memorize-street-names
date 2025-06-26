@@ -1,5 +1,7 @@
+"use client";
+
 import { useEffect, useState } from 'react'
-import './App.css'
+import './globals.css'
 import { fromLonLat, transform } from "ol/proj";
 import { Style, Fill, Circle } from "ol/style";
 import { Feature, Map, View } from "ol";
@@ -14,7 +16,7 @@ import { MVT } from "ol/format";
 import { Draw } from "ol/interaction";
 import { getCenter } from "ol/extent";
 import { getDistance } from "ol/sphere";
-import cityData from "../data/potsdam.json";
+import cityData from "../../public/potsdam.json";
 import createMapboxStreetsV6Style from "./createMapboxStyle";
 
 type CityData = { [key: string]: number[][] };
@@ -28,7 +30,7 @@ let draw: Draw | null;
 let map_layer_task: VectorTile;
 let map_layer_solution: Tile;
 
-function App() {
+export default function Home() {
   
   const [initialized, set_initialized] = useState(false);
   const [mode, set_mode] = useState<"none" | "onMap" | "streetName">("streetName");
@@ -57,6 +59,11 @@ function App() {
     loadMap();
     loadData();
     nextTaskStreetName();
+    document.onkeyup = (ev: KeyboardEvent): void => {
+      if (ev.key === "Enter") {
+        submitstreetname();
+      }
+    };
   }
 
   function loadMap(): void {
@@ -240,11 +247,6 @@ function App() {
     }
   }
 
-  document.onkeyup = (ev: KeyboardEvent): void => {
-    if (ev.key === "Enter") {
-      submitstreetname();
-    }
-  };
   function zoomToPdm(): void {
     map.setView(
       new View({
@@ -283,5 +285,3 @@ function App() {
     </div>
   )
 }
-
-export default App

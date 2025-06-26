@@ -9,7 +9,7 @@ import Icon from "ol/style/Icon";
 import { FeatureLike } from "ol/Feature";
 
 export default function createMapboxStreetsV6Style() {
-  var l = new Fill({ color: "" }),
+  const l = new Fill({ color: "" }),
     s = new Stroke({ color: "", width: 1 }),
     n = new Style({ fill: l }),
     i = new Style({ fill: l, stroke: s }),
@@ -17,7 +17,7 @@ export default function createMapboxStreetsV6Style() {
     g = new Style({ text: new Text({ text: "", fill: l, stroke: s }) }),
     c: { [key: string]: Style } = {};
   function b(t: string) {
-    var o = c[t];
+    let o = c[t];
     return (
       o ||
         ((o = new Style({
@@ -34,10 +34,10 @@ export default function createMapboxStreetsV6Style() {
       o
     );
   }
-  var m: Style[] = [];
+  const m: Style[] = [];
   return function (e: FeatureLike, t: number) {
-    var o = 0,
-      a = e.get("layer"),
+    let o = 0;
+    const a = e.get("layer"),
       r = e.get("class"),
       c = e.get("type"),
       C = e.get("scalerank"),

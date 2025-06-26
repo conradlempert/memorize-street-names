@@ -18,8 +18,7 @@ import { getCenter } from "ol/extent";
 import { getDistance } from "ol/sphere";
 import cityData from "../../public/potsdam.json";
 import createMapboxStreetsV6Style from "./createMapboxStyle";
-
-type CityData = { [key: string]: number[][] };
+import { CityData } from '../../public/convertGeojsonToJson';
 
 // These should never be changed by user code, they are just cached for performance
 let map: Map;
@@ -173,7 +172,7 @@ export default function Home() {
     if(!should_show_draw_layer) {
       return;
     }
-    var draw_source = new VectorSource({ wrapX: false });
+    const draw_source = new VectorSource({ wrapX: false });
     draw_layer = new Vector({
       source: draw_source,
       style: new Style({

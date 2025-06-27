@@ -19,10 +19,11 @@ import { getDistance } from "ol/sphere";
 import cityData from "../../../../public/potsdam.json";
 import createMapboxStreetsV6Style from "../createMapboxStyle";
 import { CityData } from '../../../../public/convertGeojsonToJson';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
+import { useScoreStore } from '@/app/scoreStore';
 
 // These should never be changed by user code, they are just cached for performance
-let features: CityData = cityData as CityData;
+const features: CityData = cityData as CityData;
 let street_layer: Vector | null;
 let draw_layer: Vector | null;
 let draw: Draw | null;
@@ -46,15 +47,20 @@ export default function Game() {
 
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstance = useRef<Map | null>(null);
+  const setGlobalScore = useScoreStore(((state) => state.setScore));
+  const router = useRouter();
 
   useEffect(() => {
-    console.log("start event called");
     loadMap();
     startGame();
   }, []);
 
   useEffect(() => {
-    console.log("update event called");
+    setGlobalScore(score);
+    if(rounds_played === 10) {
+      router.push("/endscreen");
+      return;
+    }
     updateMapLayers();
     updateStreetLayer();
     updateDrawLayer();
@@ -314,7 +320,7 @@ export default function Game() {
             {(should_show_solution && (
               <span> | 
                 {( game_type === "pointToStreet" && (<b> Click map to continue</b>))} 
-                {( game_type === "nameTheStreet" && (<b> Click "ok" again to continue</b>))}
+                {( game_type === "nameTheStreet" && (<b> Click ok again to continue</b>))}
               </span>
             ))}
           </div>

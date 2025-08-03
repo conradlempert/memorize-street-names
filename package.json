@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@neondatabase/serverless": "^1.0.1",
     "@types/geojson": "^7946.0.16",
     "next": "15.3.4",
     "ol": "^10.6.1",

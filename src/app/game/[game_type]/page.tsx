@@ -20,7 +20,6 @@ import cityData from "../../../../public/potsdam.json";
 import createMapboxStreetsV6Style from "../createMapboxStyle";
 import { CityData } from '../../../../public/convertGeojsonToJson';
 import { useParams, useRouter } from 'next/navigation';
-import { useScoreStore } from '@/app/scoreStore';
 
 // These should never be changed by user code, they are just cached for performance
 const features: CityData = cityData as CityData;
@@ -47,7 +46,7 @@ export default function Game() {
 
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstance = useRef<Map | null>(null);
-  const setGlobalScore = useScoreStore(((state) => state.setScore));
+  const setGlobalScore = (score: number) => sessionStorage.setItem("score", score.toString());
   const router = useRouter();
 
   useEffect(() => {
@@ -69,6 +68,8 @@ export default function Game() {
 
 
   function startGame() {
+    sessionStorage.setItem("score", "0");
+    sessionStorage.setItem("alreadySubmitted", "false");
     switch(game_type) {
       case "nameTheStreet":
         set_mode("nameTheStreet");

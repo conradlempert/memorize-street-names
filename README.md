@@ -18,3 +18,7 @@ There are two modes:
 
 1. "Next task (on map)" highlights a street on the map which you have to name.
 2. "Next task (street name)" gives you a street name which you have to point to on the map.
+
+## Development
+
+Start the server: `npm run dev`
